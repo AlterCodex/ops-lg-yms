@@ -129,7 +129,7 @@ public class YardController {
             @PathVariable(value = "warehouse") String warehouse,
             @RequestBody final Yard yard) {
         //Logging the given info
-
+        System.out.println("Estoy en el POST PERRON");
         HashMap<String, Object> params = new HashMap<>();
         params.put("yard", yard);
         params.put("warehouse", warehouse);
@@ -144,6 +144,16 @@ public class YardController {
                 yardService.registerYard(yard,warehouse)
         );
 
+    }
 
+    @GetMapping("/get")
+    public ResponseEntity<Object> getYard() {
+        System.out.println("Entramos Al Controller");
+        //Logging the given info
+        HashMap<String, Object> params = new HashMap<>();
+        logFormatter.logInfo(logger, "getYard", "Received request", params);
+        
+        return status(HttpStatus.CREATED).body(
+                yardService.getYard());
     }
 }

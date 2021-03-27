@@ -81,4 +81,14 @@ public class YardService implements HealthCheck {
     public Yard registerYard(Yard yard, String warehouse) {
        return this.repository.register(yard,warehouse);
     }
+
+    /**
+     * Get a Yard of the repository
+     * @param yard
+     * 
+     */
+    public Yard getYard() {
+        System.out.println("Entramos al Service");
+        return this.repository.getYard();
+    }
 }
