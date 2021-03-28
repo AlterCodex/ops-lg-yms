@@ -2,35 +2,29 @@
 # -------------------- Spring --------------------
 # ------------------------------------------------
 spring:
-  application.name: operation-invass-integration
+  application.name: warehouse-labels
   jackson.serialization.indent_output: true
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/Base1
-    username: postgres
-    password: 0000
+    driverClassName: org.postgresql.Driver
+    name: //{{ change-me_db_host }}:{{ change-me_db_port }}/{{ change-me_db_name }}
+    username: {{ change-me_db_user }}
+    password: {{ change-me_db_password }}
+    url: jdbc:postgresql:${spring.datasource.name}
   flyway:
-    locations: filesystem:src/test/resources/migrations
+    locations: filesystem:src/main/resources/migrations
 
-server:
-  port: 8080
-  compression:
-    enabled: true
-    excluded-user-agents:
-    mime-types: text/html
-    min-response-size: 2048
 # ------------------------------------------------
 # --------------------- logs --------------------
 # ------------------------------------------------
 log:
-  slack.uri: https://hooks.slack.com/services/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
+  slack.uri: {{ change-me_slack_hook }}
 
 # ------------------------------------------------
 # --------------------- Info ---------------------
 # ------------------------------------------------
 info:
   name: ${spring.application.name}
-  description: Labels service for the warehouse
+  description: Some example template project.
   environment: Frubana
   version: 0.0.1
 
@@ -38,6 +32,7 @@ info:
 # --------------- Management Conf ----------------
 # ------------------------------------------------
 management:
+  security.enabled: false
   endpoint.health.show-details: always
   endpoints.web.exposure.include: health,info,metrics,beans,flyway
   endpoints.web.base-path: /change-me
@@ -49,23 +44,12 @@ management:
 # ----------------- Frubana Conf -----------------
 # ------------------------------------------------
 frubana:
-  auth.token: HASDJFQWEIUFJASKDVIRASDAFGHSKGH
+  auth.token: {{ frubana_auth_token }}
   report_data_service:
-    url_co: http://localhost:3001/report-data-service
-    url_mx: http://localhost:3001/report-data-service
-    url_br: http://localhost:3001/report-data-service
+    url_co: {{ frubana_report_data_service_url_co }}
+    url_mx: {{ frubana_report_data_service_url_mx }}
+    url_br: {{ frubana_report_data_service_url_br }}
     orders: /microservice/orders/
-
-# ------------------------------------------------
-# ----------------- Labels Conf -----------------
-# ------------------------------------------------
-labels:
-  icon:
-    height: 50
-    width: 50
-  barcode:
-    height: 30
-    width: 150
 
 # ------------------------------------------------
 # ---------------- Resilience4j ------------------
@@ -78,7 +62,7 @@ resilience4j:
   instances:
     reportDataServiceClient:
       baseConfig: default
-    someService:
+    yardService:
       baseConfig: default
 
 # ------------------------------------------------
@@ -90,7 +74,7 @@ resilience4j.circuitbreaker:
     default:
       registerHealthIndicator: true
       slidingWindowSize: 10
-      minimumNumberOfCalls: 3
+      minimumNumberOfCalls: 5
       permittedNumberOfCallsInHalfOpenState: 3
       automaticTransitionFromOpenToHalfOpenEnabled: true
       waitDurationInOpenState: 5s
@@ -110,7 +94,7 @@ resilience4j.circuitbreaker:
   instances:
     reportDataServiceClient:
       baseConfig: default
-    someService:
+    yardService:
       baseConfig: default
 
 # ------------------------------------------------
@@ -121,7 +105,7 @@ resilience4j.retry:
   configs:
     default:
       maxRetryAttempts: 3
-      waitDuration: 100
+      waitDuration: 5000
       retryExceptions:
         - org.springframework.web.client.HttpServerErrorException
         - java.util.concurrent.TimeoutException
@@ -130,5 +114,5 @@ resilience4j.retry:
   instances:
     reportDataServiceClient:
       baseConfig: default
-    someService:
+    yardService:
       baseConfig: default

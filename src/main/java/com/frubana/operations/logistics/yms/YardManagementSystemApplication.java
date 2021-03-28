@@ -2,12 +2,13 @@ package com.frubana.operations.logistics.yms;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
 
 /** Application starter.
  */
-@SpringBootApplication
-public class YardManagementSystemApplication {
+@SpringBootApplication(exclude={SecurityAutoConfiguration.class})
+public class YardManagementSystemApplication  {
 
   /** Main method that runs the spring boot.
    *

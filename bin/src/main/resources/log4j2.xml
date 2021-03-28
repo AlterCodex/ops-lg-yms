@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="Color-Console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout
+                    pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%t}{bright,blue}] %style{%c{1.}}{bright,yellow}: %msg%n%style{%throwable}{bright,red}" />
+        </Console>
+        <Console name="Color-WMS_Console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout
+                    pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%t}{bright,blue}] %style{%X{service}}{green} %style{%c{1.}}{bright,yellow}%style{.%X{origin}}{yellow}: %style{%msg}{bright,blue} %style{%throwable}{bright,red} %style{%X{data}}{bright,green}%n" />
+
+        </Console>
+        <Console name="Console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout
+                    pattern="%d{ISO8601} %-5level [%t] %c{1.}: %msg %throwable%n" />
+        </Console>
+        <Console name="CHANGE-ME_Console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout
+                    pattern="%d{ISO8601} %-5level [%t] %X{service} %c{1.}.%X{origin}: %msg %X{data}%n%throwable%n" />
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <!-- LOG everything at INFO level -->
+        <Root level="info" additivity="false">
+            <AppenderRef ref="Console" />
+        </Root>
+
+        <!-- LOG "com.frubana*" at INFO level -->
+        <Logger name="com.frubana" level="info" additivity="false">
+            <AppenderRef ref="CHANGE-ME_Console" />
+        </Logger>
+    </Loggers>
+
+</Configuration>

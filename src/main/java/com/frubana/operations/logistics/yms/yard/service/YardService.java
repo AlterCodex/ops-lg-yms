@@ -5,6 +5,9 @@ import com.frubana.operations.logistics.yms.yard.domain.Yard;
 import com.frubana.operations.logistics.yms.yard.domain.repository.YardRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,7 +58,6 @@ public class YardService implements HealthCheck {
     public Yard obtainSomeObject(String id, String warehouse) {
         return null;
     }
-
     /** Creates the some object in the labels repository to generate its
      * some object when required.
      * @param yard The task to register, cannot be null.
@@ -80,5 +82,8 @@ public class YardService implements HealthCheck {
      */
     public Yard registerYard(Yard yard, String warehouse) {
        return this.repository.register(yard,warehouse);
+    }
+    public List<Yard> searchByWarehouse(String warehouse){
+    	return this.repository.listByWarehouse(warehouse);
     }
 }

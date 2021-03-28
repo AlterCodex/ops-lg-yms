@@ -108,7 +108,9 @@ public class YardController {
 
         return status(HttpStatus.NO_CONTENT).body(null);
     }
-
+    
+    
+    
     /** Generates the yard.
      *
      * @param yard the yard object to be persisted in the repository, cannot be
@@ -143,7 +145,25 @@ public class YardController {
         return status(HttpStatus.CREATED).body(
                 yardService.registerYard(yard,warehouse)
         );
+    }
+    
+    @GetMapping(
+            value =  "/get/{warehouse}/",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Object> searchByWarehouse(
+            @PathVariable(value = "warehouse") String warehouse) {
+        //Logging the given info
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("warehouse", warehouse);
+        logFormatter.logInfo(logger, "searchByWarehouse", "Received request", params);
 
+        if (warehouse == null || warehouse.isBlank()) {
+            return status(HttpStatus.BAD_REQUEST).body(
+                    JsonUtils.jsonResponse(HttpStatus.BAD_REQUEST,
+                            "The warehouse cannot be null or empty"));
+        }
 
+        return status(HttpStatus.ACCEPTED).body(yardService.searchByWarehouse(warehouse));
     }
 }

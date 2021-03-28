@@ -4,11 +4,13 @@
 spring:
   application.name: operation-invass-integration
   jackson.serialization.indent_output: true
+  port: 8080
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/Base1
-    username: postgres
-    password: 0000
+    driverClassName: org.sqlite.JDBC
+    name: ":memory:"
+    username: sa
+    password: sa
+    url: jdbc:sqlite:${spring.datasource.name}
   flyway:
     locations: filesystem:src/test/resources/migrations
 
@@ -38,6 +40,7 @@ info:
 # --------------- Management Conf ----------------
 # ------------------------------------------------
 management:
+  security.enabled: false
   endpoint.health.show-details: always
   endpoints.web.exposure.include: health,info,metrics,beans,flyway
   endpoints.web.base-path: /change-me
