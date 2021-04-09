@@ -125,8 +125,7 @@ public class YardRepository {
                 "where warehouse=:warehouse order by assignation_number";
         try (Handle handler = dbi.open();
              Query query_string = handler.createQuery(sql_query)) {
-            query_string
-                    .bind("warehouse", warehouse);
+            query_string.bind("warehouse", warehouse);
             List<Yard> yards = query_string.mapTo(Yard.class).list();
             handler.close();
             return yards;
@@ -161,13 +160,8 @@ public class YardRepository {
          *                      extracting some field.
          */
         @Override
-        public Yard map(ResultSet rs, StatementContext ctx)
-                throws SQLException {
-            Yard yard = new Yard(
-                    rs.getInt("id"),
-                    rs.getString("color"),
-                    rs.getInt("assignation_number")
-            );
+        public Yard map(ResultSet rs, StatementContext ctx) throws SQLException {
+            Yard yard = new Yard( rs.getInt("id"), rs.getString("color"), rs.getInt("assignation_number"));
             yard.AssignWarehouse(rs.getString("warehouse"));
             return yard;
         }

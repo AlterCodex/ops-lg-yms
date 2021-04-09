@@ -45,11 +45,9 @@ public class YardController {
      * @param logFormatter     The formatter utility to log errors, required.
      */
     @Autowired
-    public YardController(YardService yardService,
-                          FormattedLogger logFormatter) {
+    public YardController(YardService yardService, FormattedLogger logFormatter) {
         this.yardService = yardService;
         this.logFormatter = logFormatter;
-
     }
 
     /**
@@ -57,10 +55,7 @@ public class YardController {
      * @return A 200 Status Code if the service is healthy
      */
 
-    @GetMapping(
-            value = "/healthz",
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @GetMapping(value = "/healthz", produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean healthCheck(){
         return yardService.isServiceHealthy();
     }
@@ -193,8 +188,7 @@ public class YardController {
         }
 
 
-        logFormatter.logInfo(logger, "obtainAYard", "found the Yard",
-                params);
+        logFormatter.logInfo(logger, "obtainAYard", "found the Yard", params);
         if(!yards.isEmpty())
             return status(HttpStatus.OK).body(yardsByWhs);
         else
