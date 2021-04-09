@@ -3,7 +3,12 @@
 # ------------------------------------------------
 
 spring:
+<<<<<<< HEAD
   application.name: warehouse-labels
+=======
+
+  application.name: ops-lg-drivers-service
+>>>>>>> f7f634f (modificaciones para que trabaje el proyecto)
   jackson.serialization.indent_output: true
   datasource:
 <<<<<<< HEAD:bin/application.yml.j2
@@ -15,7 +20,7 @@ spring:
 =======
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/yms
-    username: root
+    username: postgres
     password: 1234
 >>>>>>> 571515b (n):src/main/resources/application.yml
   flyway:
@@ -124,3 +129,22 @@ resilience4j.retry:
       baseConfig: default
     yardService:
       baseConfig: default
+<<<<<<< HEAD
+=======
+    financeConciliationOrderRestClient:
+      baseConfig: default
+
+# ------------------------------------------------
+# ----------- Logs Configuration -----------------
+# ------------- Logging Config -------------------
+# ------------------------------------------------
+
+log:
+  slack:
+    uri: https://hooks.slack.com/
+    
+#---------------------
+
+server:
+  port : 1000
+>>>>>>> f7f634f (modificaciones para que trabaje el proyecto)
