@@ -86,8 +86,49 @@ public class Yard {
     public Yard() {
     }
 
+    
 
+<<<<<<< HEAD
     public String getColor() {
         return this.color;
     }
+=======
+    public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
+	}
+
+	/***
+     * get the color of the yard.
+     * @return the color in hex format.
+     */
+    public String getColor() {
+        return this.color;
+    }
+
+    /**
+     * retrieve the warehouse
+     * @return {@link String} the warehouse
+     */
+    public String getWarehouse(){return  this.warehouse; }
+
+    public void AssignWarehouse(String warehouse){
+        this.warehouse=warehouse;
+    }
+
+	public int getAssignationNumber() {
+		return assignationNumber;
+	}
+
+	public void setAssignationNumber(int assignationNumber) {
+		this.assignationNumber = assignationNumber;
+	}
+>>>>>>> 58ceeee (cosa 1 funcionando, cambiando el estado del yard a ocupado)
 }
