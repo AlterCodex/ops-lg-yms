@@ -44,11 +44,9 @@ public class YardController {
      * @param logFormatter     The formatter utility to log errors, required.
      */
     @Autowired
-    public YardController(YardService yardService,
-                          FormattedLogger logFormatter) {
+    public YardController(YardService yardService, FormattedLogger logFormatter) {
         this.yardService = yardService;
         this.logFormatter = logFormatter;
-
     }
 
     /**
@@ -56,10 +54,7 @@ public class YardController {
      * @return A 200 Status Code if the service is healthy
      */
 
-    @GetMapping(
-            value = "/healthz",
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @GetMapping(value = "/healthz", produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean healthCheck(){
         return yardService.isServiceHealthy();
     }
@@ -108,9 +103,99 @@ public class YardController {
 
         return status(HttpStatus.NO_CONTENT).body(null);
     }
+<<<<<<< HEAD
     
     
     
+=======
+
+
+    /** Returns the yards of the given warehouse.
+     *
+     * @param warehouse The warehouse where the task belongs.
+     * @return A JSON representing a some object:
+     * <code>
+     * {@link Yard}
+     * </code>
+     */
+    @GetMapping(
+            value =  "/{warehouse}/",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Object> getAllYardsInWarehouse(
+            @PathVariable(value = "warehouse") String warehouse) {
+        //Logging the given info
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("warehouse", warehouse);
+        logFormatter.logInfo(logger, "getAllYardsInWarehouse",
+                "Received request", params);
+        if (warehouse == null || warehouse.isBlank()) {
+            return status(HttpStatus.BAD_REQUEST).body(
+                    JsonUtils.jsonResponse(HttpStatus.BAD_REQUEST,
+                            "The warehouse cannot be null or empty"));
+        }
+
+        // Register the yard throws an error if something fails.
+        List<Yard> yards = yardService.getYards(warehouse);
+        params.put("yards", yards);
+        HashMap<String,List<Yard>> yardsByWhs= new HashMap<>();
+        for(Yard yard : yards) {
+            if(!yardsByWhs.containsKey(yard.getColor())){
+                yardsByWhs.put(yard.getColor(), new ArrayList<>());
+            }
+            List currentYards = yardsByWhs.get(yard.getColor());
+            currentYards.add(yard);
+            yardsByWhs.put(yard.getColor(), currentYards);
+        }
+
+        logFormatter.logInfo(logger, "obtainAYard", "found the Yard",
+                params);
+        if(yards != null)
+            return status(HttpStatus.OK).body(yardsByWhs);
+        else
+            return status(HttpStatus.NOT_FOUND).body("Yard not Found");
+    }
+
+    /** Returns the yard of the given id.
+     *
+     * @return A JSON representing a some object:
+     * <code>
+     * {@link HashMap}<{@link String} warehouse,
+     *                 {@link List}<{@link Yard}>
+     *                >
+     * </code>
+     */
+    @GetMapping(
+            value =  "/",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Object> getAllYardsByWarehouse() {
+        //Logging the given info
+        HashMap<String, Object> params = new HashMap<>();
+        logFormatter.logInfo(logger, "getAllYardsByWarehouse",
+                "Received request", params);
+        // Register the yard throws an error if something fails.
+        List<Yard> yards = yardService.getYards();
+        params.put("yards", yards);
+        HashMap<String,List<Yard>> yardsByWhs= new HashMap<>();
+        for (Yard yard:yards) {
+            if( !yardsByWhs.containsKey(yard.getWarehouse())) {
+                yardsByWhs.put(yard.getWarehouse(), new ArrayList<>());
+            }
+            List<Yard> currentYards=yardsByWhs.get(yard.getWarehouse());
+            currentYards.add(yard);
+            yardsByWhs.put(yard.getWarehouse(),currentYards);
+        }
+
+
+        logFormatter.logInfo(logger, "obtainAYard", "found the Yard", params);
+        if(!yards.isEmpty())
+            return status(HttpStatus.OK).body(yardsByWhs);
+        else
+            return status(HttpStatus.NOT_FOUND).body("Yard not Found");
+    }
+
+>>>>>>> 571515b (n)
     /** Generates the yard.
      *
      * @param yard the yard object to be persisted in the repository, cannot be

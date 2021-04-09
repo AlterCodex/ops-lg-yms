@@ -56,6 +56,7 @@ public class YardRepository {
 
 	}
 
+<<<<<<< HEAD
 	public List<Yard> listByWarehouse(String warehouse) {
 		String sql_query = "select id,color from yard where warehouse=?";
 		Object[] args = { warehouse };
@@ -64,6 +65,20 @@ public class YardRepository {
 		System.out.println(listaYards.get(0).getColor() + " " + listaYards.size());
 		return listaYards;
 	}
+=======
+    public List<Yard> getByWarehouse(String warehouse) {
+        String sql_query = "Select id,color,warehouse,assignation_number "+
+                "from YARD " +
+                "where warehouse=:warehouse order by assignation_number";
+        try (Handle handler = dbi.open();
+             Query query_string = handler.createQuery(sql_query)) {
+            query_string.bind("warehouse", warehouse);
+            List<Yard> yards = query_string.mapTo(Yard.class).list();
+            handler.close();
+            return yards;
+        }
+    }
+>>>>>>> 571515b (n)
 
 	/**
 	 * Mapper of the {@link Yard} for the JDBI implementation.
@@ -86,7 +101,27 @@ public class YardRepository {
 
 			Yard yard = new Yard(rs.getInt("id"), rs.getString("color"), 1);
 
+<<<<<<< HEAD
 			return yard;
 		}
 	}
+=======
+        /** Override of the map method to set the fields in the SomeObject
+         * object when extracted from the repository.
+         *
+         * @param rs  result set with the fields of the extracted some object.
+         * @param ctx the context of the request that extracted the some
+         *            object.
+         * @return the {@link Yard} instance with the extracted fields.
+         * @throws SQLException if the result set throws an error when
+         *                      extracting some field.
+         */
+        @Override
+        public Yard map(ResultSet rs, StatementContext ctx) throws SQLException {
+            Yard yard = new Yard( rs.getInt("id"), rs.getString("color"), rs.getInt("assignation_number"));
+            yard.AssignWarehouse(rs.getString("warehouse"));
+            return yard;
+        }
+    }
+>>>>>>> 571515b (n)
 }
