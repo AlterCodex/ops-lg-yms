@@ -71,7 +71,7 @@ public class YardRepository {
     private int getNextAssignationNumber(String color, String warehouse){
         //TODO: return the next number to be assigned for this match of color
         // be carefully for the deleted index.
-        return 1;
+    	return 1;
     }
 
     /**
@@ -152,6 +152,23 @@ public class YardRepository {
                     .mapTo(int.class).first();
             handler.close();
             yard.setColor("#E0E0E0");
+            yard.setId(yard_id);
+            return yard;
+      }
+   }
+    
+    public Yard modifyColor(Yard yard) {
+        String sql_query="update yard set color = :color where  color= '#E0E0E0' and  "
+        		+ "warehouse= :warehouse and assignation_number= :assignation_number";
+        try(Handle handler=dbi.open();
+            Update query_string = handler.createUpdate(sql_query)){
+            query_string
+                    .bind("color",yard.getColor())
+                    .bind("warehouse",yard.getWarehouse())
+                    .bind("assignation_number", yard.getAssignationNumber());
+            int yard_id=query_string.executeAndReturnGeneratedKeys("id")
+                    .mapTo(int.class).first();
+            handler.close();
             yard.setId(yard_id);
             return yard;
       }
