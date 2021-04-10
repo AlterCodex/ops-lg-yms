@@ -250,5 +250,16 @@ public class YardController {
     }
     
     
-    
+    @PostMapping(value = "/free/",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> free(@RequestBody final Yard yard) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("yard", yard);
+        logFormatter.logInfo(logger, "free", "Received request", params);
+        if (yard == null) {
+            return status(HttpStatus.BAD_REQUEST).body(
+                    JsonUtils.jsonResponse(HttpStatus.BAD_REQUEST,
+                            "The Yard cannot be null"));
+        }
+        return status(HttpStatus.ACCEPTED).body(yardService.modifyYardColor(yard));
+    }
 }
