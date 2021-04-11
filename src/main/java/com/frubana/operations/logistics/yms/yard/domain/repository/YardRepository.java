@@ -104,21 +104,20 @@ public class YardRepository {
                     .bind("warehouse", warehouse);
             List<Integer> listAssignationNumbers = query_string.mapTo(int.class).list();
             if(!listAssignationNumbers.isEmpty()) {
+                nextAssignationNumber = listAssignationNumbers.get(listAssignationNumbers.size()-1);   
             	for(int i=0; i<listAssignationNumbers.size();i++){
+                    if(i==0 && listAssignationNumbers.get(i)!=1){
+                        nextAssignationNumber = 0;
+                        break;
+                    }
                     if((i+1)<listAssignationNumbers.size()){
                     	if(listAssignationNumbers.get(i+1) != listAssignationNumbers.get(i)+1) {
                     		nextAssignationNumber = listAssignationNumbers.get(i);
-                            System.out.println("entro1"+nextAssignationNumber);
                             break;
                     	}
-                    }   
+                    }
                 }
-            	if(nextAssignationNumber==0) {
-            		nextAssignationNumber = listAssignationNumbers.get(listAssignationNumbers.size()-1);
-                    System.out.println("entro2");
-            	}
             }
-
             handler.close();
             return nextAssignationNumber+1;
         }
