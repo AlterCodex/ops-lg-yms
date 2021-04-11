@@ -40,6 +40,7 @@ public class YardRepository {
      */
     public Yard register(Yard yard, String warehouse){
         int nextAssignation = this.getNextAssignationNumber(yard.getColor(), warehouse);
+        System.out.println(nextAssignation);
         String sql_query="Insert into yard (color, warehouse, assignation_number)"+" values(:color, :warehouse, :assignation_number)";
         try(Handle handler=dbi.open();
             Update query_string = handler.createUpdate(sql_query)){
@@ -53,7 +54,7 @@ public class YardRepository {
             handler.close();
             Yard createdYard = new Yard(yard_id,yard.getColor(), nextAssignation);
             createdYard.AssignWarehouse(warehouse);
-            return createdYard ;
+            return createdYard;
         }
     }
 
@@ -69,29 +70,33 @@ public class YardRepository {
      * @return
      */
     private int getNextAssignationNumber(String color, String warehouse){
-    	int nextAssignationNumber = 0;
-    	int assignationNumber = 0;
-        String sql_query = "SELECT assignationNumber from YARD WHERE color= :color and warehouse=:warehouse";
+        int nextAssignationNumber = 0;
+        String sql_query = "SELECT assignation_number from YARD WHERE color= :color and warehouse= :warehouse";
         try (Handle handler = dbi.open();
-             Query query_string = handler.createQuery(sql_query)) {
+            Query query_string = handler.createQuery(sql_query)) {
             query_string
-                    .bind("assignationNumber", assignationNumber);
-            List<Integer> assignationNumbers = query_string.mapTo(int.class).list();
-            
-            for(int i=0; i<assignationNumbers.size();i++){
-                if((i+1)<assignationNumbers.size() && assignationNumbers.get(i+1)!=assignationNumbers.get(i)+1){
-                    nextAssignationNumber = assignationNumbers.get(i+1);
-                    break;
+                    .bind("color", color)
+                    .bind("warehouse", warehouse);
+            List<Integer> listAssignationNumbers = query_string.mapTo(int.class).list();
+            if(!listAssignationNumbers.isEmpty()) {
+            	for(int i=0; i<listAssignationNumbers.size();i++){
+                    if((i+1)<listAssignationNumbers.size()){
+                    	if(listAssignationNumbers.get(i+1) != listAssignationNumbers.get(i)+1) {
+                    		nextAssignationNumber = listAssignationNumbers.get(i);
+                            System.out.println("entro1"+nextAssignationNumber);
+                            break;
+                    	}
+                    }   
                 }
-                nextAssignationNumber = assignationNumbers.get(i);   
+            	if(nextAssignationNumber==0) {
+            		nextAssignationNumber = listAssignationNumbers.get(listAssignationNumbers.size()-1);
+                    System.out.println("entro2");
+            	}
             }
+
             handler.close();
             return nextAssignationNumber+1;
-            
         }
-        
-    	//TODO: return the next number to be assigned for this match of color
-        // be carefully for the deleted index.
     	
     }
 
@@ -183,7 +188,7 @@ public class YardRepository {
         		+ "warehouse= :warehouse and assignation_number= :assignation_number";
         try(Handle handler=dbi.open();
             Update query_string = handler.createUpdate(sql_query)){
-            query_string
+            query_string	
                     .bind("color",yard.getColor())
                     .bind("warehouse",yard.getWarehouse())
                     .bind("assignation_number", yard.getAssignationNumber());
