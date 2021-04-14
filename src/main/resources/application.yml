@@ -21,8 +21,12 @@ spring:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/yms
     username: postgres
+<<<<<<< HEAD
     password: 1234
 >>>>>>> 571515b (n):src/main/resources/application.yml
+=======
+    password: '0000'
+>>>>>>> 90b995c (Se recupera el color original al liberar el yard, debido al campo original_color de la bd)
   flyway:
     locations: filesystem:src/main/resources/migrations
 
