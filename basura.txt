@@ -1,0 +1,23 @@
+String sql_query = "Select assignation_number from YARD where color= :color and warehouse=:warehouse";
+        try (Handle handler = dbi.open();
+             Query query_string = handler.createQuery(sql_query)) {
+            query_string
+                    .bind("color", color)
+                    .bind("warehouse", warehouse);
+            List<Integer> assignationNumbers= query_string.mapTo(int.class).list();
+            handler.close();
+            if (assignationNumbers.size() == 0) {
+            	System.out.println("perra vida");
+				return 1;
+			}else {
+				int accountant=0;
+				for (int i = 0; i < assignationNumbers.size(); i++) {
+					System.out.println("contado"+accountant);
+					accountant=accountant+1;
+					if(assignationNumbers.get(i) != accountant) {
+						return accountant;
+					}
+				}
+				return (accountant+1);
+			}
+        }
