@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
-
 /** Some repository using JDBI
  */
 @Component
@@ -41,13 +39,14 @@ public class YardRepository {
     public Yard register(Yard yard, String warehouse){
         int nextAssignation = this.getNextAssignationNumber(yard.getColor(), warehouse);
         System.out.println(nextAssignation);
-        String sql_query="Insert into yard (color, warehouse, assignation_number)"+" values(:color, :warehouse, :assignation_number)";
+        String sql_query="Insert into yard (color, warehouse, assignation_number, original_color)"+" values(:color, :warehouse, :assignation_number, :original_color)";
         try(Handle handler=dbi.open();
             Update query_string = handler.createUpdate(sql_query)){
             query_string
                     .bind("color",yard.getColor())
                     .bind("warehouse",warehouse)
-                    .bind("assignation_number", nextAssignation);
+                    .bind("assignation_number", nextAssignation)
+            		.bind("original_color" , yard.getColor());
             int yard_id=query_string
                     .executeAndReturnGeneratedKeys("id")
                     .mapTo(int.class).first();
@@ -183,12 +182,11 @@ public class YardRepository {
    }
     
     public Yard modifyColor(Yard yard) {
-        String sql_query="update yard set color = :color where  color= '#E0E0E0' and  "
+        String sql_query="update yard set color = original_color where  color= '#E0E0E0' and  "
         		+ "warehouse= :warehouse and assignation_number= :assignation_number";
         try(Handle handler=dbi.open();
             Update query_string = handler.createUpdate(sql_query)){
             query_string	
-                    .bind("color",yard.getColor())
                     .bind("warehouse",yard.getWarehouse())
                     .bind("assignation_number", yard.getAssignationNumber());
             int yard_id=query_string.executeAndReturnGeneratedKeys("id")
