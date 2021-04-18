@@ -1,7 +1,9 @@
 # ------------------------------------------------
 # -------------------- Spring --------------------
 # ------------------------------------------------
+
 spring:
+
   application.name: ops-lg-drivers-service
   jackson.serialization.indent_output: true
   servlet:
@@ -11,8 +13,8 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/yms
-    username: eam
-    password: eam
+    username: postgres
+    password: 1234
   flyway:
     locations: filesystem:src/main/resources/migrations
     out-of-order: true
@@ -110,3 +112,8 @@ resilience4j.retry:
 log:
   slack:
     uri: https://hooks.slack.com/
+    
+#---------------------
+
+server:
+  port : 1000

@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
-
 /** Some repository using JDBI
  */
 @Component
@@ -39,24 +37,23 @@ public class YardRepository {
      * @return the {@link Yard}  registered.
      */
     public Yard register(Yard yard, String warehouse){
-        int nextAssignation = this.getNextAssignationNumber(yard.getColor(),
-                warehouse);
-        String sql_query="Insert into yard (color, warehouse)"+
-                " values(:color, :warehouse)";
+        int nextAssignation = this.getNextAssignationNumber(yard.getColor(), warehouse);
+        System.out.println(nextAssignation);
+        String sql_query="Insert into yard (color, warehouse, assignation_number, original_color)"+" values(:color, :warehouse, :assignation_number, :original_color)";
         try(Handle handler=dbi.open();
             Update query_string = handler.createUpdate(sql_query)){
             query_string
                     .bind("color",yard.getColor())
-                    .bind("warehouse",warehouse);
+                    .bind("warehouse",warehouse)
+                    .bind("assignation_number", nextAssignation)
+            		.bind("original_color" , yard.getColor());
             int yard_id=query_string
                     .executeAndReturnGeneratedKeys("id")
                     .mapTo(int.class).first();
             handler.close();
-            Yard createdYard = new Yard(yard_id,yard.getColor(),
-                    nextAssignation);
+            Yard createdYard = new Yard(yard_id,yard.getColor(), nextAssignation);
             createdYard.AssignWarehouse(warehouse);
-            return createdYard ;
-
+            return createdYard;
         }
     }
 
@@ -72,11 +69,34 @@ public class YardRepository {
      * @return
      */
     private int getNextAssignationNumber(String color, String warehouse){
-        //TODO: return the next number to be assigned for this match of color
-        // be carefully for the deleted index.
-        return 1;
+        int nextAssignationNumber = 0;
+        String sql_query = "SELECT assignation_number from YARD WHERE color= :color or color='#E0E0E0' and warehouse= :warehouse ORDER BY assignation_number ASC";
+        try (Handle handler = dbi.open();
+            Query query_string = handler.createQuery(sql_query)) {
+            query_string
+                    .bind("color", color)
+                    .bind("warehouse", warehouse);
+            List<Integer> listAssignationNumbers = query_string.mapTo(int.class).list();
+            if(!listAssignationNumbers.isEmpty()) {
+                nextAssignationNumber = listAssignationNumbers.get(listAssignationNumbers.size()-1);   
+            	for(int i=0; i<listAssignationNumbers.size();i++){
+                    if(i==0 && listAssignationNumbers.get(i)!=1){
+                        nextAssignationNumber = 0;
+                        break;
+                    }
+                    if((i+1)<listAssignationNumbers.size()){
+                    	if(listAssignationNumbers.get(i+1) != listAssignationNumbers.get(i)+1) {
+                    		nextAssignationNumber = listAssignationNumbers.get(i);
+                            break;
+                    	}
+                    }
+                }
+            }
+            handler.close();
+            return nextAssignationNumber+1;
+        }
+    	
     }
-
 
     /**
      * Retrieve if an yard exists or not in the DB
@@ -125,8 +145,7 @@ public class YardRepository {
                 "where warehouse=:warehouse order by assignation_number";
         try (Handle handler = dbi.open();
              Query query_string = handler.createQuery(sql_query)) {
-            query_string
-                    .bind("warehouse", warehouse);
+            query_string.bind("warehouse", warehouse);
             List<Yard> yards = query_string.mapTo(Yard.class).list();
             handler.close();
             return yards;
@@ -143,6 +162,40 @@ public class YardRepository {
             return yards;
         }
     }
+    
+    public Yard changeColorOccupy(Yard yard) {
+        String sql_query="update yard set color = '#E0E0E0' where  color= :color and  "
+        		+ "warehouse= :warehouse and assignation_number= :assignation_number";
+        try(Handle handler=dbi.open();
+            Update query_string = handler.createUpdate(sql_query)){
+            query_string
+                    .bind("color",yard.getColor())
+                    .bind("warehouse",yard.getWarehouse())
+                    .bind("assignation_number", yard.getAssignationNumber());
+            int yard_id=query_string.executeAndReturnGeneratedKeys("id")
+                    .mapTo(int.class).first();
+            handler.close();
+            yard.setColor("#E0E0E0");
+            yard.setId(yard_id);
+            return yard;
+      }
+   }
+    
+    public Yard modifyColor(Yard yard) {
+        String sql_query="update yard set color = original_color where  color= '#E0E0E0' and  "
+        		+ "warehouse= :warehouse and assignation_number= :assignation_number";
+        try(Handle handler=dbi.open();
+            Update query_string = handler.createUpdate(sql_query)){
+            query_string	
+                    .bind("warehouse",yard.getWarehouse())
+                    .bind("assignation_number", yard.getAssignationNumber());
+            int yard_id=query_string.executeAndReturnGeneratedKeys("id")
+                    .mapTo(int.class).first();
+            handler.close();
+            yard.setId(yard_id);
+            return yard;
+      }
+   }
 
 
     /** Mapper of the {@link Yard} for the JDBI implementation.
@@ -161,13 +214,8 @@ public class YardRepository {
          *                      extracting some field.
          */
         @Override
-        public Yard map(ResultSet rs, StatementContext ctx)
-                throws SQLException {
-            Yard yard = new Yard(
-                    rs.getInt("id"),
-                    rs.getString("color"),
-                    rs.getInt("assignation_number")
-            );
+        public Yard map(ResultSet rs, StatementContext ctx) throws SQLException {
+            Yard yard = new Yard( rs.getInt("id"), rs.getString("color"), rs.getInt("assignation_number"));
             yard.AssignWarehouse(rs.getString("warehouse"));
             return yard;
         }

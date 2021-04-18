@@ -45,11 +45,9 @@ public class YardController {
      * @param logFormatter     The formatter utility to log errors, required.
      */
     @Autowired
-    public YardController(YardService yardService,
-                          FormattedLogger logFormatter) {
+    public YardController(YardService yardService, FormattedLogger logFormatter) {
         this.yardService = yardService;
         this.logFormatter = logFormatter;
-
     }
 
     /**
@@ -57,10 +55,7 @@ public class YardController {
      * @return A 200 Status Code if the service is healthy
      */
 
-    @GetMapping(
-            value = "/healthz",
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @GetMapping(value = "/healthz", produces = MediaType.APPLICATION_JSON_VALUE)
     public boolean healthCheck(){
         return yardService.isServiceHealthy();
     }
@@ -193,8 +188,7 @@ public class YardController {
         }
 
 
-        logFormatter.logInfo(logger, "obtainAYard", "found the Yard",
-                params);
+        logFormatter.logInfo(logger, "obtainAYard", "found the Yard", params);
         if(!yards.isEmpty())
             return status(HttpStatus.OK).body(yardsByWhs);
         else
@@ -217,25 +211,55 @@ public class YardController {
             value = "/{warehouse}/",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Object> register(
-            @PathVariable(value = "warehouse") String warehouse,
-            @RequestBody final Yard yard) {
+    public ResponseEntity<Object> register(@PathVariable(value = "warehouse") String warehouse, @RequestBody final Yard yard) {
         //Logging the given info
-
         HashMap<String, Object> params = new HashMap<>();
         params.put("yard", yard);
         params.put("warehouse", warehouse);
-        logFormatter.logInfo(logger, "registerYard",
-                "Received request", params);
+        logFormatter.logInfo(logger, "registerYard", "Received request", params);
         if (yard == null) {
             return status(HttpStatus.BAD_REQUEST).body(
                     JsonUtils.jsonResponse(HttpStatus.BAD_REQUEST,
                             "The Yard cannot be null"));
         }
-        return status(HttpStatus.CREATED).body(
-                yardService.registerYard(yard,warehouse)
-        );
-
-
+        return status(HttpStatus.CREATED).body(yardService.registerYard(yard,warehouse));
+    }
+    
+    /** change status to busy in the yard.
+    * @param yard the yard the color is changed to gray.
+    * @return A JSON response with a message and status:
+    * <code>
+    * {
+    * "message": "accepted",
+    * "status": 202
+    * }
+    * </code>
+    */
+    @PostMapping(value = "/occupy/",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> occupy(@RequestBody final Yard yard) {
+        //Logging the given info
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("yard", yard);
+        logFormatter.logInfo(logger, "occupy", "Received request", params);
+        if (yard == null) {
+            return status(HttpStatus.BAD_REQUEST).body(
+                    JsonUtils.jsonResponse(HttpStatus.BAD_REQUEST,
+                            "The Yard cannot be null"));
+        }
+        return status(HttpStatus.ACCEPTED).body(yardService.changeYardColorOccupy(yard));
+    }
+    
+    
+    @PostMapping(value = "/free/",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> free(@RequestBody final Yard yard) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("yard", yard);
+        logFormatter.logInfo(logger, "free", "Received request", params);
+        if (yard == null) {
+            return status(HttpStatus.BAD_REQUEST).body(
+                    JsonUtils.jsonResponse(HttpStatus.BAD_REQUEST,
+                            "The Yard cannot be null"));
+        }
+        return status(HttpStatus.ACCEPTED).body(yardService.modifyYardColor(yard));
     }
 }

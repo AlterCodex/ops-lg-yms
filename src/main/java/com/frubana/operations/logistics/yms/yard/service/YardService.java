@@ -95,4 +95,22 @@ public class YardService implements HealthCheck {
     public List<Yard> getYards() {
         return repository.getAll();
     }
+    
+    /**
+     * modify the color of a Yard in the repository
+     * @param yard
+     */
+    @Transactional
+    @Retry(name = SERVICE_NAME)
+    @CircuitBreaker(name = SERVICE_NAME)
+    public Yard changeYardColorOccupy(Yard yard) {
+       return this.repository.changeColorOccupy(yard);
+    }
+    
+    @Transactional
+    @Retry(name = SERVICE_NAME)
+    @CircuitBreaker(name = SERVICE_NAME)
+    public Yard modifyYardColor(Yard yard) {
+       return this.repository.modifyColor(yard);
+    }
 }
