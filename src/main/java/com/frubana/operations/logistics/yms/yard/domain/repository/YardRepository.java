@@ -70,7 +70,7 @@ public class YardRepository {
      */
     private int getNextAssignationNumber(String color, String warehouse){
         int nextAssignationNumber = 0;
-        String sql_query = "SELECT assignation_number from YARD WHERE color= :color and warehouse= :warehouse";
+        String sql_query = "SELECT assignation_number from YARD WHERE color= :color or color='#E0E0E0' and warehouse= :warehouse";
         try (Handle handler = dbi.open();
             Query query_string = handler.createQuery(sql_query)) {
             query_string
