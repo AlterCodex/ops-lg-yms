@@ -275,7 +275,7 @@ public class YardController {
                     JsonUtils.jsonResponse(HttpStatus.NOT_FOUND,
                                 "http404 not found"));
         }
-        return status(HttpStatus.CREATED).body(
+        return status(HttpStatus.OK).body(
                 yard2
         );
     }
