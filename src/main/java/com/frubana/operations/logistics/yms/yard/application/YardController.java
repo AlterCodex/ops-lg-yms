@@ -264,16 +264,16 @@ public class YardController {
         logFormatter.logInfo(logger, "registerYard",
                 "Received request", params);
         if (yard == null) {
-            return status(HttpStatus.BAD_REQUEST).body(
-                    JsonUtils.jsonResponse(HttpStatus.BAD_REQUEST,
+            return status(HttpStatus.NOT_FOUND).body(
+                    JsonUtils.jsonResponse(HttpStatus.NOT_FOUND,
                             "The Yard cannot be null"));
         }
 
         Yard yard2= yardService.liberar(yard);
         if(yard2 == null) { 
-           return status(HttpStatus.BAD_REQUEST).body(
-                    JsonUtils.jsonResponse(HttpStatus.BAD_REQUEST,
-                                "yard no exist"));
+           return status(HttpStatus.NOT_FOUND).body(
+                    JsonUtils.jsonResponse(HttpStatus.NOT_FOUND,
+                                "http404 not found"));
         }
         return status(HttpStatus.CREATED).body(
                 yard2
