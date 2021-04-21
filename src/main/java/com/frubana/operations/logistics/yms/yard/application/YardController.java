@@ -221,21 +221,116 @@ public class YardController {
             @PathVariable(value = "warehouse") String warehouse,
             @RequestBody final Yard yard) {
         //Logging the given info
+    	try {
+    		HashMap<String, Object> params = new HashMap<>();
+            params.put("yard", yard);
+            params.put("warehouse", warehouse);
+            logFormatter.logInfo(logger, "registerYard",
+                    "Received request", params);
+            if (yard == null) {
+                return status(HttpStatus.BAD_REQUEST).body(
+                        JsonUtils.jsonResponse(HttpStatus.BAD_REQUEST,
+                                "The Yard cannot be null"));
+            }
+            return status(HttpStatus.CREATED).body(
+                    yardService.registerYard(yard,warehouse)
+            );
+    	}catch (Exception e) {
+    		return status(HttpStatus.BAD_REQUEST).body(
+                    JsonUtils.jsonResponse(HttpStatus.BAD_REQUEST,
+                            "La estructura ingresada no es correcta. Ejemplo: "
+                    	    + "'color': '#D3D3D3' "));
+    	}
+    }
+    
+     /** Generates the yard.
+     *
+     * @param yard the yard object to be persisted in the repository, cannot be
+     *             null.
+     * @return A JSON response with a message and status:
+     * <code>
+     * {
+     * "message": "created",
+     * "status": 201
+     * }
+     * </code>
+     */
+    @PostMapping(
+            value = "/free/",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Object> liberar(
+            @RequestBody final Yard yard) {
+        //Logging the given info
+    	try {
+    		HashMap<String, Object> params = new HashMap<>();
+            params.put("yard", yard);
+            logFormatter.logInfo(logger, "registerYard",
+                    "Received request", params);
+            if (yard == null) {
+                return status(HttpStatus.BAD_REQUEST).body(
+                        JsonUtils.jsonResponse(HttpStatus.BAD_REQUEST,
+                                "The Yard cannot be null"));
+            }
+
+            Yard yard2= yardService.liberar(yard);
+            if(yard2 == null) { 
+               return status(HttpStatus.BAD_REQUEST).body(
+                        JsonUtils.jsonResponse(HttpStatus.BAD_REQUEST,
+                                    "yard no exist"));
+            }
+            return status(HttpStatus.CREATED).body(
+                    yard2
+            );
+    	}catch (Exception e) {
+    		return status(HttpStatus.BAD_REQUEST).body(
+                    JsonUtils.jsonResponse(HttpStatus.BAD_REQUEST,
+                            "La estructura ingresada no es correcta. Ejemplo:"
+                            + " warehouse:'AXM'," + 
+                            " color:'#0000ff'"+
+                            " assignation_Number: 1"));
+		}     
+    }
+
+    /** Generates the yard.
+     *
+     * @param yard the yard object to be persisted in the repository, cannot be
+     *             null.
+     * @return A JSON response with a message and status:
+     * <code>
+     * {
+     * "message": "created",
+     * "status": 201
+     * }
+     * </code>
+     */
+    @PostMapping(
+            value = "/occupy/",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Object> occupy(
+            @RequestBody final Yard yard) {
+        //Logging the given info
 
         HashMap<String, Object> params = new HashMap<>();
         params.put("yard", yard);
-        params.put("warehouse", warehouse);
         logFormatter.logInfo(logger, "registerYard",
                 "Received request", params);
         if (yard == null) {
-            return status(HttpStatus.BAD_REQUEST).body(
-                    JsonUtils.jsonResponse(HttpStatus.BAD_REQUEST,
+            return status(HttpStatus.NOT_FOUND).body(
+                    JsonUtils.jsonResponse(HttpStatus.NOT_FOUND,
                             "The Yard cannot be null"));
         }
-        return status(HttpStatus.CREATED).body(
-                yardService.registerYard(yard,warehouse)
+
+        Yard yard2= yardService.occupy(yard);
+        if(yard2 == null) { 
+           return status(HttpStatus.NOT_FOUND).body(
+                    JsonUtils.jsonResponse(HttpStatus.NOT_FOUND,
+                                "http404 not found"));
+        }
+        return status(HttpStatus.OK).body(
+                yard2
         );
-
-
     }
+ 
 }

@@ -13,3 +13,11 @@ src/main/resources/application.yml
 *.class
 
 *.pdf
+
+.classpath
+
+.factorypath
+
+.project
+
+.settings
