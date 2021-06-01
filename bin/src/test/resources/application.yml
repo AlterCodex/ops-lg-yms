@@ -1,0 +1,137 @@
+# ------------------------------------------------
+# -------------------- Spring --------------------
+# ------------------------------------------------
+spring:
+  application.name: operation-invass-integration
+  jackson.serialization.indent_output: true
+  port: 8080
+  datasource:
+    driverClassName: org.sqlite.JDBC
+    name: ":memory:"
+    username: sa
+    password: sa
+    url: jdbc:sqlite:${spring.datasource.name}
+  flyway:
+    locations: filesystem:src/test/resources/migrations
+
+server:
+  port: 8080
+  compression:
+    enabled: true
+    excluded-user-agents:
+    mime-types: text/html
+    min-response-size: 2048
+# ------------------------------------------------
+# --------------------- logs --------------------
+# ------------------------------------------------
+log:
+  slack.uri: https://hooks.slack.com/services/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
+
+# ------------------------------------------------
+# --------------------- Info ---------------------
+# ------------------------------------------------
+info:
+  name: ${spring.application.name}
+  description: Labels service for the warehouse
+  environment: Frubana
+  version: 0.0.1
+
+# ------------------------------------------------
+# --------------- Management Conf ----------------
+# ------------------------------------------------
+management:
+  security.enabled: false
+  endpoint.health.show-details: always
+  endpoints.web.exposure.include: health,info,metrics,beans,flyway
+  endpoints.web.base-path: /change-me
+  metrics.tags.application: ${spring.application.name}
+  metrics.distribution.percentiles-histogram.http.server.requests: true
+  metrics.distribution.percentiles-histogram.resilience4j.circuitbreaker.calls: true
+
+# ------------------------------------------------
+# ----------------- Frubana Conf -----------------
+# ------------------------------------------------
+frubana:
+  auth.token: HASDJFQWEIUFJASKDVIRASDAFGHSKGH
+  report_data_service:
+    url_co: http://localhost:3001/report-data-service
+    url_mx: http://localhost:3001/report-data-service
+    url_br: http://localhost:3001/report-data-service
+    orders: /microservice/orders/
+
+# ------------------------------------------------
+# ----------------- Labels Conf -----------------
+# ------------------------------------------------
+labels:
+  icon:
+    height: 50
+    width: 50
+  barcode:
+    height: 30
+    width: 150
+
+# ------------------------------------------------
+# ---------------- Resilience4j ------------------
+# ------------------------------------------------
+resilience4j:
+  configs:
+    default:
+      cancelRunningFuture: false
+      timeoutDuration: 6s
+  instances:
+    reportDataServiceClient:
+      baseConfig: default
+    someService:
+      baseConfig: default
+
+# ------------------------------------------------
+# ---------------- Resilience4j ------------------
+# ------------- Circuit Breaker Conf -------------
+# ------------------------------------------------
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      minimumNumberOfCalls: 3
+      permittedNumberOfCallsInHalfOpenState: 3
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      waitDurationInOpenState: 5s
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10
+      recordExceptions:
+        - org.springframework.web.client.HttpServerErrorException
+        - java.util.concurrent.TimeoutException
+        - java.io.IOException
+        - java.lang.IllegalArgumentException
+    shared:
+      slidingWindowSize: 100
+      permittedNumberOfCallsInHalfOpenState: 30
+      waitDurationInOpenState: 1s
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10
+  instances:
+    reportDataServiceClient:
+      baseConfig: default
+    someService:
+      baseConfig: default
+
+# ------------------------------------------------
+# ---------------- Resilience4j ------------------
+# ----------------- Retry Conf -------------------
+# ------------------------------------------------
+resilience4j.retry:
+  configs:
+    default:
+      maxRetryAttempts: 3
+      waitDuration: 100
+      retryExceptions:
+        - org.springframework.web.client.HttpServerErrorException
+        - java.util.concurrent.TimeoutException
+        - java.io.IOException
+        - java.lang.IllegalArgumentException
+  instances:
+    reportDataServiceClient:
+      baseConfig: default
+    someService:
+      baseConfig: default

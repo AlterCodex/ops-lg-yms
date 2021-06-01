@@ -1,0 +1,118 @@
+# ------------------------------------------------
+# -------------------- Spring --------------------
+# ------------------------------------------------
+spring:
+  application.name: warehouse-labels
+  jackson.serialization.indent_output: true
+  datasource:
+    driverClassName: org.postgresql.Driver
+    name: //{{ change-me_db_host }}:{{ change-me_db_port }}/{{ change-me_db_name }}
+    username: {{ change-me_db_user }}
+    password: {{ change-me_db_password }}
+    url: jdbc:postgresql:${spring.datasource.name}
+  flyway:
+    locations: filesystem:src/main/resources/migrations
+
+# ------------------------------------------------
+# --------------------- logs --------------------
+# ------------------------------------------------
+log:
+  slack.uri: {{ change-me_slack_hook }}
+
+# ------------------------------------------------
+# --------------------- Info ---------------------
+# ------------------------------------------------
+info:
+  name: ${spring.application.name}
+  description: Some example template project.
+  environment: Frubana
+  version: 0.0.1
+
+# ------------------------------------------------
+# --------------- Management Conf ----------------
+# ------------------------------------------------
+management:
+  security.enabled: false
+  endpoint.health.show-details: always
+  endpoints.web.exposure.include: health,info,metrics,beans,flyway
+  endpoints.web.base-path: /change-me
+  metrics.tags.application: ${spring.application.name}
+  metrics.distribution.percentiles-histogram.http.server.requests: true
+  metrics.distribution.percentiles-histogram.resilience4j.circuitbreaker.calls: true
+
+# ------------------------------------------------
+# ----------------- Frubana Conf -----------------
+# ------------------------------------------------
+frubana:
+  auth.token: {{ frubana_auth_token }}
+  report_data_service:
+    url_co: {{ frubana_report_data_service_url_co }}
+    url_mx: {{ frubana_report_data_service_url_mx }}
+    url_br: {{ frubana_report_data_service_url_br }}
+    orders: /microservice/orders/
+
+# ------------------------------------------------
+# ---------------- Resilience4j ------------------
+# ------------------------------------------------
+resilience4j:
+  configs:
+    default:
+      cancelRunningFuture: false
+      timeoutDuration: 6s
+  instances:
+    reportDataServiceClient:
+      baseConfig: default
+    yardService:
+      baseConfig: default
+
+# ------------------------------------------------
+# ---------------- Resilience4j ------------------
+# ------------- Circuit Breaker Conf -------------
+# ------------------------------------------------
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      minimumNumberOfCalls: 5
+      permittedNumberOfCallsInHalfOpenState: 3
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      waitDurationInOpenState: 5s
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10
+      recordExceptions:
+        - org.springframework.web.client.HttpServerErrorException
+        - java.util.concurrent.TimeoutException
+        - java.io.IOException
+        - java.lang.IllegalArgumentException
+    shared:
+      slidingWindowSize: 100
+      permittedNumberOfCallsInHalfOpenState: 30
+      waitDurationInOpenState: 1s
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10
+  instances:
+    reportDataServiceClient:
+      baseConfig: default
+    yardService:
+      baseConfig: default
+
+# ------------------------------------------------
+# ---------------- Resilience4j ------------------
+# ----------------- Retry Conf -------------------
+# ------------------------------------------------
+resilience4j.retry:
+  configs:
+    default:
+      maxRetryAttempts: 3
+      waitDuration: 5000
+      retryExceptions:
+        - org.springframework.web.client.HttpServerErrorException
+        - java.util.concurrent.TimeoutException
+        - java.io.IOException
+        - java.lang.IllegalArgumentException
+  instances:
+    reportDataServiceClient:
+      baseConfig: default
+    yardService:
+      baseConfig: default
