@@ -50,6 +50,12 @@ public class Yard {
     String warehouse;
 
     boolean occupied;
+    
+    //The size of the vehicle supported
+    int size;
+    
+    //Whether or not the yard is exclusive for the supported vehicle size
+    boolean isExclusive;
 
     //the vehicle type supported by this yard
     private int vehicleType;
@@ -131,9 +137,27 @@ public class Yard {
 
         this.vehicleType=vehicle_type;
     }
+    
+    
 
 
-    public void copyTo(Yard oldYard) {
+    public int getSize() {
+		return size;
+	}
+
+	public void setSize(int size) {
+		this.size = size;
+	}
+
+	public boolean isExclusive() {
+		return isExclusive;
+	}
+
+	public void setExclusive(boolean isExclusive) {
+		this.isExclusive = isExclusive;
+	}
+
+	public void copyTo(Yard oldYard) {
         if (oldYard==null)
             return;
         oldYard.warehouse=this.warehouse;

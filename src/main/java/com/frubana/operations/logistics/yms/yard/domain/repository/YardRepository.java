@@ -23,6 +23,9 @@ public class YardRepository {
      * Select * from YARD
      */
     public static final String SELECT_YARD_SQL_QUERY = "Select * from YARD ";
+    public static final String SELECT_FULL_YARD_SQL_QUERY =SELECT_YARD_SQL_QUERY+
+            "INNER JOIN vehicle_type vtp on vtp.id = yard.vehicle_type ";
+
 
     /**
      * The JDBI instance to request data to the database, it's never null.
@@ -167,7 +170,7 @@ public class YardRepository {
 
     public List<Yard> getByWarehouse(String warehouse) {
 
-        String sql_query = SELECT_YARD_SQL_QUERY +
+        String sql_query = SELECT_FULL_YARD_SQL_QUERY +
                 " where warehouse=:warehouse order by assignation_number";
         try (Handle handler = dbi.open();
              Query query_string = handler.createQuery(sql_query)) {
@@ -248,35 +251,28 @@ public class YardRepository {
         }
     }
 
-    /** Mapper of the {@link Yard} for the JDBI implementation.
-     */
-    @Component
-    public static class YardMapper implements RowMapper<Yard> {
+    public  Yard  getNextFreeYard(String warehouse, String vehicleTypeName) {
 
-        /** Override of the map method to set the fields in the SomeObject
-         * object when extracted from the repository.
-         *
-         * @param rs  result set with the fields of the extracted some object.
-         * @param ctx the context of the request that extracted the some
-         *            object.
-         * @return the {@link Yard} instance with the extracted fields.
-         * @throws SQLException if the result set throws an error when
-         *                      extracting some field.
-         */
-        @Override
-        public Yard map(ResultSet rs, StatementContext ctx)
-                throws SQLException {
-            Yard yard = new Yard(
-                    rs.getInt("id"),
-                    rs.getString("color"),
-                    rs.getInt("assignation_number"),
-                    rs.getBoolean("occupied")
-            );
-            yard.assignWarehouse(rs.getString("warehouse"));
-            yard.setVehicleType(rs.getInt("vehicle_type"));
-            return yard;
+
+
+
+        String sql_queryGetYard= SELECT_FULL_YARD_SQL_QUERY +
+                " WHERE warehouse= :warehouse and occupied= :occupied and vtp.name= :name";
+
+        try(Handle handler=dbi.open();
+            Query query_string = handler.createQuery(sql_queryGetYard)){
+            query_string.bind("warehouse",warehouse)
+                    .bind("name",vehicleTypeName)
+                    .bind("occupied",false);
+            List<Yard> yard = query_string.mapTo(Yard.class).list();
+            if(yard.isEmpty()){
+                return null;
+            }
+            return yard.get(0);
         }
+
     }
+    
     public Yard ocuparMuelle(Yard yard){
 
         String sql_query=" UPDATE yard SET " +
@@ -306,4 +302,39 @@ public class YardRepository {
             return yards;
         }
     }
+
+
+    /** Mapper of the {@link Yard} for the JDBI implementation.
+     */
+    @Component
+    public static class YardMapper implements RowMapper<Yard> {
+
+        /** Override of the map method to set the fields in the SomeObject
+         * object when extracted from the repository.
+         *
+         * @param rs  result set with the fields of the extracted some object.
+         * @param ctx the context of the request that extracted the some
+         *            object.
+         * @return the {@link Yard} instance with the extracted fields.
+         * @throws SQLException if the result set throws an error when
+         *                      extracting some field.
+         */
+        @Override
+        public Yard map(ResultSet rs, StatementContext ctx)
+                throws SQLException {
+            Yard yard = new Yard(
+                    rs.getInt("id"),
+                    rs.getString("color"),
+                    rs.getInt("assignation_number"),
+                    rs.getBoolean("occupied")
+            );
+            yard.assignWarehouse(rs.getString("warehouse"));
+            yard.setVehicleType(rs.getInt("vehicle_type"));
+            yard.setSize(rs.getInt("size"));
+            yard.setExclusive(rs.getBoolean("is_exclusive"));
+            return yard;
+        }
+    }
+    
+    
 }

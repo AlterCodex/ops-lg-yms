@@ -131,5 +131,20 @@ public class YardService implements HealthCheck {
 
         return newYard;
     }
+
+    /**
+     *
+     * @param warehouse
+     * @param vehicleTypeName
+     * @return
+     */
+    @Transactional
+    @Retry(name = SERVICE_NAME)
+    @CircuitBreaker(name = SERVICE_NAME)
+    public Yard nextFreeYard(String warehouse, String vehicleTypeName) {
+        return repository.getNextFreeYard(warehouse,vehicleTypeName);
+    }
+
+
 }
 
