@@ -13,3 +13,4 @@ src/main/resources/application.yml
 *.class
 
 *.pdf
+bin/

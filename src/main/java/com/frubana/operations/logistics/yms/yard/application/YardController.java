@@ -1,8 +1,11 @@
 package com.frubana.operations.logistics.yms.yard.application;
 
+import com.frubana.operations.logistics.yms.common.clients.DriversClient;
+import com.frubana.operations.logistics.yms.common.clients.DriversDTO;
 import com.frubana.operations.logistics.yms.common.configuration.FormattedLogger;
 import com.frubana.operations.logistics.yms.common.utils.JsonUtils;
 import com.frubana.operations.logistics.yms.yard.domain.Yard;
+import com.frubana.operations.logistics.yms.yard.service.VehicleTypeService;
 import com.frubana.operations.logistics.yms.yard.service.YardService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -33,9 +36,11 @@ public class YardController {
      * of the same log. */
     private final FormattedLogger logFormatter;
 
-
+private final VehicleTypeService vehicleTypeService;
     /** The jackson's object mapper, it's never null. */
     private final YardService yardService;
+
+    private final DriversClient driversServiceClient;
 
 
 
@@ -47,10 +52,11 @@ public class YardController {
      */
     @Autowired
     public YardController(YardService yardService,
-                          FormattedLogger logFormatter) {
+                          FormattedLogger logFormatter,DriversClient driversServiceClient,VehicleTypeService vehicleTypeService) {
         this.yardService = yardService;
         this.logFormatter = logFormatter;
-
+        this.driversServiceClient=driversServiceClient;
+        this.vehicleTypeService=vehicleTypeService;
     }
 
     /**
@@ -257,12 +263,18 @@ public class YardController {
             value = "/free",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Object> liiberarMuelle(
+    public ResponseEntity<Object> liberarMuelle(
             @RequestBody final Yard yard) {
-
-        return status(HttpStatus.OK).body(
-                yardService.liberarMuelle(yard)
-        );
+               List<DriversDTO> listDrivers= this.driversServiceClient.getDriversWaitingByWarehouse(yard.getWarehouse());
+                HashMap<String, Integer> textToInt=new HashMap(); 
+                for(DriversDTO driver: listDrivers){
+                        if(!textToInt.containsKey(driver.getVehicleDTO().getType())){
+                                this.vehicleTypeService.getAllVehicleTypes();
+                        }
+                }
+                Yard freeYard=yardService.liberarMuelle(yard);
+                int vehiculeType=freeYard.getVehicleType();
+               return status(HttpStatus.OK).body(freeYard);
     }
 
     /** Updates the yard.

@@ -184,7 +184,7 @@ public class YardRepository {
 
     public List<Yard> getAll() {
 
-        String sqlQuery = SELECT_YARD_SQL_QUERY;
+        String sqlQuery = SELECT_FULL_YARD_SQL_QUERY;
         try (Handle handler = dbi.open();
              Query queryString = handler.createQuery(sqlQuery)) {
             List<Yard> yards = queryString.mapTo(Yard.class).list();
@@ -216,7 +216,7 @@ public class YardRepository {
         }
 
 
-        String sql_queryGetYard= SELECT_YARD_SQL_QUERY +
+        String sql_queryGetYard= SELECT_FULL_YARD_SQL_QUERY +
                 " WHERE assignation_number =:assignation_number"+
                 " and warehouse= :warehouse and color=:color;";
 
